@@ -1,0 +1,10 @@
+<!DOCTYPE Desktop SYSTEM "hdl-prj.dtd">
+<Desktop>
+  <ProjectWindow X="36" Y="-4" W="496" H="306">
+    <Column>150</Column>
+    <Column>60</Column>
+    <Column>50</Column>
+    <Column>50</Column>
+  </ProjectWindow>
+  <SourceWindow X="178" Y="68" W="871" H="404" File="floatari.vl" Line="18"></SourceWindow>
+</Desktop>

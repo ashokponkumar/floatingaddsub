@@ -1,0 +1,59 @@
+Dumping macros: __VERIWELL__
+VeriLogger Pro simulation log created at Mon Apr 11 04:49:42 2005
+Beginning Compile
+Beginning Phase I
+Compiling source file: D:\Documents and Settings\ASHOK PON KUMAR\Desktop\ca project\floatari.vl
+Finished Phase I
+Entering Phase II...
+Finished Phase II
+Entering Phase III...
+Finished Phase III
+Highest level modules:   subs32bit,    main, 
+Finding handle to inputm.n
+Warning: Could not find handle to net inputm.n for addition to watched list
+Finding handle to inputm.s
+Warning: Could not find handle to net inputm.s for addition to watched list
+Finding handle to inputm.a.ea
+Warning: Could not find handle to net inputm.a.ea for addition to watched list
+Finding handle to inputm.a.eb
+Warning: Could not find handle to net inputm.a.eb for addition to watched list
+Finding handle to inputm.a.n
+Warning: Could not find handle to net inputm.a.n for addition to watched list
+Finding handle to inputm.a.s
+Warning: Could not find handle to net inputm.a.s for addition to watched list
+Finding handle to inputm.a.temp
+Warning: Could not find handle to net inputm.a.temp for addition to watched list
+Finding handle to inputm.a.t
+Warning: Could not find handle to net inputm.a.t for addition to watched list
+Finding handle to inputm.a.ta
+Warning: Could not find handle to net inputm.a.ta for addition to watched list
+Finding handle to inputm.a.tb
+Warning: Could not find handle to net inputm.a.tb for addition to watched list
+Finding handle to inputm.a.tc
+Warning: Could not find handle to net inputm.a.tc for addition to watched list
+Finding handle to inputm.a.td
+Warning: Could not find handle to net inputm.a.td for addition to watched list
+Finding handle to inputm.a.te
+Warning: Could not find handle to net inputm.a.te for addition to watched list
+Finding handle to inputm.a.tf
+Warning: Could not find handle to net inputm.a.tf for addition to watched list
+Finding handle to main.cout
+Finding handle to main.pout
+Finding handle to main.gout
+Finding handle to main.s
+Finding handle to main.a
+Finding handle to main.sub.temp
+Warning: Could not find handle to net main.sub.temp for addition to watched list
+Finding handle to mv
+Warning: Could not find handle to net mv for addition to watched list
+Finding handle to si
+Warning: Could not find handle to net si for addition to watched list
+Compile Complete
+.
+Running...
+sum,carryout,g,p
+00000000000000000000000000001000
+0 Errors, 0 Warnings
+Compile time = 0.01500, Load time = 0.04700, Execution time = 0.01500
+
+Normal exit

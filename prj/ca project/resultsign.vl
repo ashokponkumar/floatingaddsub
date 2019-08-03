@@ -1,0 +1,27 @@
+//result sign determination module
+
+module resultsign(sa,sb,op,mss,sr);
+        input sa,sb,op,mss;
+        output sr;        
+        reg sr;
+        initial
+        begin
+        if((~sa && ~sb && ~op)==1)
+            sr=0;
+        if((~sa && ~sb && op)==1)
+            sr=mss;
+        if((~sa && sb && ~op)==1)
+            sr=mss;
+        if((~sa && sb && op)==1)
+             sr=0;
+        if((sa && ~sb && ~op)==1)
+             sr=mss;
+        if((sa && ~sb && op)==1)
+             sr=1;
+        if((sa && sb && ~op)==1)
+             sr=1;
+        if((sa && sb && op)==1)
+             sr=mss;
+        end
+endmodule
+

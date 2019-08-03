@@ -1,0 +1,227 @@
+`define gdelay 5
+module main;
+	wire cout,pout,gout;
+       wire[31:0] b1,b;
+       wire a;
+     //  norro no(32'd1,0,b1);
+       // lead0de ld(32'd23,b1);       
+       //mux m(32'd3,32'd4,1,b1);        
+       // swapn sw(32'd2,32'd4,1,b1,b);       
+       subs32bit sub(32'd33,32'd22,b,b1,a);     
+      // adder32bit add (32'd12,32'd13,1'b0,s,cout,gout,pout); 
+	initial
+	begin
+		//#20;              
+              $display("sum,carryout,g,p");
+            //  $display("%d",b1);              
+              $monitor("%d %d",b1,b);
+             #50 $finish;
+	//	#500 $finish;
+	end
+
+endmodule   
+
+
+
+/*subs module */
+
+module subs32bit(x,y,mv,mvn,si);
+    input [31:0]x,y;
+    output [31:0]mv,mvn;
+    reg [31:0]mv,mvn;
+    output si;
+    //reg si;
+    wire [31:0] t;
+    reg[31:0]temp;
+    adder32bit adder(x,~y+1,1'b0,t,,,);
+    assign si=t[31];
+   // assign mv=~mv+1;
+   //assign mv=~mv+1;    
+   initial           
+    begin
+    assign mv=t;
+    assign mvn=t;      
+          
+    if(mv[31]==1)
+     mv=~mv+1;
+   // $display ("%d",temp);    
+    //assign mv=~mv+1;
+    end  
+    
+endmodule
+
+//end of substractor module
+
+//adders
+module bcell(x,y,c,gen,prop,s);
+	input x,y,c;
+	output s,gen,prop;
+	assign #(`gdelay*1) gen=x & y;
+	assign #(`gdelay*1) prop=x ^ y;
+	assign #(`gdelay*1) s= prop^c;
+endmodule
+
+
+
+module carrylookahead( gin,pin,cin,cout,gout,pout);
+	input[3:0] gin,pin;
+	input cin;
+	output[4:1] cout;
+	output gout,pout;
+       wire t1,t2,t3,t4,t6,t5;
+
+	assign t1= gin[0] || (pin[0] & cin);
+       assign t2=(gin[1] || (pin[1]&gin[0]) || (pin[1]&pin[0] & cin));
+       assign t3=(gin[2] || (pin[2]&gin[1]) || (pin[2]&pin[1]&gin[0]) || (pin[2]&pin[1]&pin[0] & cin));
+       assign t4= (gin[3] || (pin[3]&gin[2]) ||(pin[3]&pin[2]&gin[1]) || (pin[3]&pin[2]&pin[1]&gin[0]) || (pin[3]&pin[2]&pin[1]&pin[0] & cin));
+
+	assign #(`gdelay*2) cout[1] = t1; 
+	assign #(`gdelay*2) cout[2] = t2;
+	assign #(`gdelay*2) cout[3] = t3;
+	assign #(`gdelay*2) cout[4] = t4;
+
+	
+       assign t5=pin[3] & pin[2] & pin[1] & pin[0];
+       assign t6= gin[3] || (pin[3]&gin[2]) ||(pin[3]&pin[2]&gin[1]) || (pin[3]&pin[2]&pin[1]&gin[0]) ;
+	assign #(`gdelay*2) gout =t6;
+	assign #(`gdelay*1) pout= t5;
+	
+
+endmodule
+
+
+module adder4bit(x,y,cin,s,cout,gout,pout);
+	input[3:0] x,y;
+	input cin;
+	output[3:0] s;
+	output cout,pout,gout;
+       wire[3:1] c;
+	wire[3:0] g,p;
+
+	bcell b0(x[0],y[0],cin,g[0],p[0],s[0]);
+       bcell b1(x[1],y[1],c[1],g[1],p[1],s[1]);
+       bcell b2(x[2],y[2],c[2],g[2],p[2],s[2]);
+       bcell b3(x[3],y[3],c[3],g[3],p[3],s[3]);
+       
+       carrylookahead cla(g,p,cin,{cout,c},gout,pout);
+        
+endmodule
+
+
+module adder16bit(x,y,cin,s,cout,gout,pout);
+	input[15:0] x,y;
+	input cin;
+	output[15:0] s;
+	output cout,pout,gout;
+	
+	wire[3:1] carry;
+       wire[3:0] g,p;
+
+	adder4bit a0(x[3:0],y[3:0],cin,s[3:0],,g[0],p[0]);
+	adder4bit a1(x[7:4],y[7:4],carry[1],s[7:4],,g[1],p[1]);
+	adder4bit a2(x[11:8],y[11:8],carry[2],s[11:8],,g[2],p[2]);
+	adder4bit a3(x[15:12],y[15:12],carry[3],s[15:12],,g[3],p[3]);
+
+	carrylookahead cla(g,p,cin,{cout,carry},gout,pout);
+
+endmodule
+
+
+module adder32bit(x,y,cin,s,cout,gout,pout);
+	input[31:0] x,y;
+	input cin;
+	output[31:0] s;
+	output cout,pout,gout;
+	
+	wire[4:1] carry;
+        wire[1:0] g,p;
+	
+        adder16bit a0(x[15:0],y[15:0],cin,s[15:0],,g[0],p[0]);
+        adder16bit a1(x[31:16],y[31:16],carry[1],s[31:16],,g[1],p[1]);
+	
+        carrylookahead cla({2'b0,g},{2'b0,p},cin,carry,,);
+
+        assign gout=g[1];
+        assign pout=p[1];
+
+        assign cout=carry[2];
+
+endmodule 
+
+/*adder modules*/	
+
+
+/*swap modules*/
+
+module swapn(main,mbin,s,mao,mbo);
+input [31:0]main,mbin;
+output [31:0]mao,mbo;
+reg [31:0]mao,mbo,temp;
+input s;
+initial
+begin 
+if(s==1)
+begin
+    mao=mbin;
+    mbo=main;
+end
+else
+begin
+    mao=main;
+    mbo=mbin;
+end
+end
+endmodule
+/*end of swap module*/
+
+
+
+//mux module
+
+module mux(ea,eb,si,e);
+      input [31:0]ea,eb;
+      input si;
+      output [31:0]e;
+      reg [31:0]e;
+      initial
+      begin 
+      if(si==0)
+        e=ea;
+      else
+        e=eb;
+      end
+endmodule
+/*end of mux module*/
+
+/*leading zero detector*/
+/*
+module lead0de(va,n);
+      input [31:0]va;
+      output [4:0]n;
+      reg[4:0] n;
+      integer i;
+      initial
+      begin
+      assign n=0;
+      
+               end
+ $display("n=%d",n);
+      end  
+      end
+endmodule
+  */
+/*end of leading zero detector*/
+
+/*normalize and round*/
+
+module norro(va,n,ou);
+      input[31:0] n,va;
+      output[31:0] ou;
+      assign ou=va<<(23-n+2);
+      //$monitor("%b",ou);
+     // #20;      
+     // $finish;
+endmodule
+
+/*end of normalization module*/
+

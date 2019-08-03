@@ -1,0 +1,120 @@
+
+module main;
+wire [31:0]a;
+wire [4:0]lbo;
+assign a=32'b00000001000000000000000000000000;
+lead0de ld (a,lbo);
+     //  norro norm(32'b00000000100000000000000000000000,ldo+2,no);
+initial
+begin
+#1;
+$display("%d ",lbo);
+end
+endmodule
+module lead0de(va,n);
+      input [31:0]va;
+      output [4:0]n;
+      reg[4:0] n;
+      integer i;
+      initial
+      begin
+    /*  for(i=31;i>=0;i=i-1)
+      begin
+           if( va[i]==1)
+           begin
+               n=i;
+             //  $display("n=%d",n);
+              //  #5;              
+              // $finish;
+           end
+           
+           
+      end */
+      if(va[31]==1)
+          n=31;
+      if(va[31]==1)
+          n=31;
+if(va[31]==1)
+          n=31;
+if(va[30]==1)
+          n=30;
+if(va[29]==1)
+          n=29;
+if(va[28]==1)
+          n=28;
+if(va[27]==1)
+          n=27;
+if(va[26]==1)
+          n=26;
+if(va[25]==1)
+          n=25;
+if(va[24]==1)
+          n=24;
+if(va[23]==1)
+          n=23;
+if(va[22]==1)
+          n=22;
+if(va[21]==1)
+          n=21;
+if(va[20]==1)
+          n=20;
+if(va[19]==1)
+          n=19;
+if(va[18]==1)
+          n=18;
+if(va[17]==1)
+          n=17;
+if(va[16]==1)
+          n=16;
+if(va[15]==1)
+          n=15;
+if(va[14]==1)
+          n=14;
+if(va[13]==1)
+          n=13;
+if(va[12]==1)
+          n=12;
+if(va[11]==1)
+          n=11;
+if(va[10]==1)
+          n=10;
+if(va[9]==1)
+          n=9;
+if(va[8]==1)
+          n=8;
+if(va[7]==1)
+          n=7;
+if(va[6]==1)
+          n=6;
+if(va[5]==1)
+          n=5;
+if(va[4]==1)
+          n=4;
+if(va[3]==1)
+          n=3;
+if(va[2]==1)
+          n=2;
+if(va[1]==1)
+          n=1;
+
+
+
+      
+      end
+endmodule
+
+/*end of leading zero detector*/
+
+/*normalize and round*/
+/*
+module norro(va,n,ou);
+      input[31:0] n,va;
+      output[31:0] ou;
+      assign ou=va<<(23-n+2);
+      //$monitor("%b",ou);
+     // #20;      
+     // $finish;
+endmodule*/
+
+/*end of normalization module*/
+

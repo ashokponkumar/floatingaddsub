@@ -1,0 +1,13 @@
+Compiling and executing D:\PROGRA~1\SYNAPT~1\perl\autoexec.pl at Mon Apr 11 04:21:16 2005
+Eval D:\PROGRA~1\SYNAPT~1\perl\autoexec.pl
+Error: Persist.pl found the following error during eval of D:\PROGRA~1\SYNAPT~1\perl\autoexec.pl:
+  Can't locate sampleStorageProcess.pm in @INC (@INC contains: D:\PROGRA~1\SYNAPT~1\perl\ D:\Program Files\SynaptiCAD\lib D:\Program Files\SynaptiCAD\site\5.00501\lib D:\Program Files\SynaptiCAD\site\lib .) at D:\PROGRA~1\SYNAPT~1\perl\/processtim.pm line 14.
+BEGIN failed--compilation aborted at D:\PROGRA~1\SYNAPT~1\perl\/processtim.pm line 14.
+BEGIN failed--compilation aborted at D:\PROGRA~1\SYNAPT~1\perl\/processproject.pm line 2.
+BEGIN failed--compilation aborted at (eval 5) line 20.
+
+eval error: Can't locate sampleStorageProcess.pm in @INC (@INC contains: D:\PROGRA~1\SYNAPT~1\perl\ D:\Program Files\SynaptiCAD\lib D:\Program Files\SynaptiCAD\site\5.00501\lib D:\Program Files\SynaptiCAD\site\lib .) at D:\PROGRA~1\SYNAPT~1\perl\/processtim.pm line 14.
+BEGIN failed--compilation aborted at D:\PROGRA~1\SYNAPT~1\perl\/processtim.pm line 14.
+BEGIN failed--compilation aborted at D:\PROGRA~1\SYNAPT~1\perl\/processproject.pm line 2.
+BEGIN failed--compilation aborted at (eval 5) line 20.
+

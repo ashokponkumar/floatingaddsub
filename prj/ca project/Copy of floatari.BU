@@ -1,0 +1,389 @@
+`define gdelay 5
+
+/*combining circuts*/
+module main;
+        wire out;        
+      //  control c(32'b00111111110000000000000000000000,32'b00111111110000000000000000000000,0,out);
+        control c(32'b00111111110000000000000000000000,32'b00111111101000000000000000000000,1,out);
+        initial
+        begin   
+        #200;                     
+        $display("%b",out);
+        //#200;
+        //$finish;
+        end                         
+endmodule
+
+/*controller*/
+module control(a,b,op,out);
+        input [31:0]a,b;
+        input op;
+        output [31:0]out;
+        wire [7:0]oes,ldo,sub;
+        wire [22:0]no;
+        wire [31:0]c,oa,os,muxo,mvn;
+        reg [31:0]ma;
+        wire exs,optbp,ss;
+        reg ms;
+        integer i;
+        wire [23:0]soa,sob;   
+        wire sr;  
+        reg [4:0]n;                               
+        subs32bit e0s(a[30:23],b[30:23],oes,,exs);
+        swapn esw({1'b1,a[22:0]},{1'b1,b[22:0]},exs,soa,sob);
+        assign c=sob>>oes;
+        opdet opd(a[31],b[31],op,optbp);
+        adder32bit add(soa[23:0],c[23:0],1'b0,oa,,,);
+        subs32bit subm(soa[23:0],c[23:0],os,,ss);//check this
+        initial
+        begin
+        #50;
+        if(optbp==1)
+        begin        
+            assign ma=os;        
+            assign  ms=ss;
+        end
+        if(optbp==0)
+        begin        
+             assign ma=oa;
+             assign ms=0;
+        end  
+        //Leading 0 det
+      for(i=25;(i>=0);i=i-1)
+      begin
+           if( ma[i]==1)
+           begin
+               n=i;
+               i=-1;
+           end
+           $display("%d",n);
+      end
+      
+              
+                    
+         
+        #5;
+       //$display("a=%b,b=%b,op=%b,out=%b",a,b,op,out);
+      
+        //$display("oes=%b,ldo=%b,sub=%b,no=%b",oes,ldo,sub,no);
+        //$display("c=%b,oa=%b,os=%b,muxo=%b,ma=%b",c,oa,os,muxo,ma);
+        $display("//first subs");        
+        $display("a[30:23],b[30:23],oes,exs)= %b %b %b %b",a,b,oes,exs);
+        $display("//swap");        
+        $display(" (1'b1,a[22:0]},{1'b1,b[22:0]},exs,soa,sob)==%b %b %b %b %b",{1'b1,a[22:0]},{1'b1,b[22:0]},exs,soa,sob);
+        $display("//shifter");        
+        $display("c=%b",c);
+        $display("//operation determination");        
+        $display("optbp=%b",optbp);
+        $display("//adder and subs");         
+         $display("os=%b,oa=%b,ss=%b0 ",os,oa,ss); 
+      //   $display("{1'b1,soa}=%b,{1'b1,c}=%b,1'b0=%b,oa=%b,soa=%b,c=%b,os=%b,ss=%b",{1'b1,soa},{1'b1,c},1'b0,oa,soa,c,os,ss);
+         $display("ma=%b",ma);         
+         $display("//leading zero detector");         
+         $display("ldo=%b",ldo);
+        $display("//normalize");         
+         $display("no=%b",no);
+         #50;
+         $display("a=%b b=%b ss=%b mux0=%b",a[30:23],b[30:23],ss,muxo);
+         $display("mux");
+         $display("a[30:23]=%b,b[30:23]=%b,ss=%b,muxo=%b",a[30:23],b[30:23],ss,muxo);
+         $display("exponent subs");
+         $display("muxo=%b ldo+1=%b sub=%b",muxo,ldo+1,sub);//,sub);              
+         $display("result sign");
+         $display("a[31]=%b,b[31]=%b,op=%b,ms=%b,sr=%b",a[31],b[31],op,ms,sr);                
+         $display("out=%b",out); 
+       // $finish;                   
+         /* wire exs,optbp,ss;
+        reg ms;
+        wire [22:0]soa,sob;*/
+
+        end
+        assign ldo=n;
+       // lead0de ld (ma,ldo);//output error
+        norro norm(ma,ldo,no);//output error
+        mux m(a[30:23],b[30:23],exs,muxo); 
+        subs32bit sube(muxo,(23-ldo),,sub,);  //output error
+        resultsign rs(a[31],b[31],op,ms,sr);
+        assign out={sr,sub[7:0],no[22:0]};
+        
+endmodule
+//end of controller
+
+//operation determination
+module opdet(sa,sb,op,oop);
+        input sa,sb,op;
+        output oop; 
+        reg oop;                       
+        initial
+        begin                
+        if((~sa && ~sb && ~op)==1)
+            oop=0;
+        if((~sa && ~sb && op)==1)
+             oop=1;
+        if((~sa && sb && ~op)==1)
+             oop=1;
+        if((~sa && sb && op)==1)
+             oop=0;
+        if((sa && ~sb && ~op)==1)
+             oop=1;
+        if((sa && ~sb && op)==1)
+             oop=0;
+        if((sa && sb && ~op)==1)
+             oop=0;
+        if((sa && sb && op)==1)
+             oop=1;
+        end
+endmodule
+//end of operation determination
+module resultsign(sa,sb,op,mss,sr);
+        input sa,sb,op,mss;
+        output sr;        
+        reg sr;
+        initial
+        begin
+        if((~sa && ~sb && ~op)==1)
+            assign sr=0;
+        if((~sa && ~sb && op)==1)
+            assign sr=mss;
+        if((~sa && sb && ~op)==1)
+            assign sr=mss;
+        if((~sa && sb && op)==1)
+             assign sr=0;
+        if((sa && ~sb && ~op)==1)
+             assign sr=mss;
+        if((sa && ~sb && op)==1)
+             assign sr=1;
+        if((sa && sb && ~op)==1)
+             assign sr=1;
+        if((sa && sb && op)==1)
+             assign sr=mss;
+        end
+endmodule
+//end of resultsign
+/*
+module main;
+	wire cout,pout,gout;
+       wire[31:0] b1,b;
+       wire a;
+       norro no(32'd1,0,b1);
+       // lead0de ld(32'd23,b1);       
+       //mux m(32'd3,32'd4,1,b1);        
+       // swapn sw(32'd2,32'd4,1,b1,b);       
+       //subs32bit sub(32'd22,32'd33,s,a);     
+      // adder32bit add (32'd12,32'd13,1'b0,s,cout,gout,pout); 
+	initial
+	begin
+		//#20;              
+              $display("sum,carryout,g,p");
+            //  $display("%d",b1);              
+              $monitor("%b",b1);
+             #50000 $finish;
+	//	#500 $finish;
+	end
+
+endmodule   */
+
+
+
+/*subs module */
+
+module subs32bit(x,y,mv,mvn,si);
+    input [31:0]x,y;
+    output [31:0]mv,mvn;
+    reg [31:0]mv,mvn;
+    output si;
+    //reg si;
+    wire [31:0] t;
+    reg[31:0]temp;
+    adder32bit adder(x,~y+1,1'b0,t,,,);
+    assign si=t[31];
+   // assign mv=~mv+1;
+   //assign mv=~mv+1;    
+   initial           
+    begin
+    assign mv=t;
+    assign mvn=t;      
+          
+    if(mv[31]==1)
+     assign mv=~mv+1;
+   // $display ("%d",temp);    
+    //assign mv=~mv+1;
+    end  
+    
+endmodule
+
+//end of substractor module
+
+//adders
+module bcell(x,y,c,gen,prop,s);
+	input x,y,c;
+	output s,gen,prop;
+	assign #(`gdelay*1) gen=x & y;
+	assign #(`gdelay*1) prop=x ^ y;
+	assign #(`gdelay*1) s= prop^c;
+endmodule
+
+
+
+module carrylookahead( gin,pin,cin,cout,gout,pout);
+	input[3:0] gin,pin;
+	input cin;
+	output[4:1] cout;
+	output gout,pout;
+       wire t1,t2,t3,t4,t6,t5;
+
+	assign t1= gin[0] || (pin[0] & cin);
+       assign t2=(gin[1] || (pin[1]&gin[0]) || (pin[1]&pin[0] & cin));
+       assign t3=(gin[2] || (pin[2]&gin[1]) || (pin[2]&pin[1]&gin[0]) || (pin[2]&pin[1]&pin[0] & cin));
+       assign t4= (gin[3] || (pin[3]&gin[2]) ||(pin[3]&pin[2]&gin[1]) || (pin[3]&pin[2]&pin[1]&gin[0]) || (pin[3]&pin[2]&pin[1]&pin[0] & cin));
+
+	assign #(`gdelay*2) cout[1] = t1; 
+	assign #(`gdelay*2) cout[2] = t2;
+	assign #(`gdelay*2) cout[3] = t3;
+	assign #(`gdelay*2) cout[4] = t4;
+
+	
+       assign t5=pin[3] & pin[2] & pin[1] & pin[0];
+       assign t6= gin[3] || (pin[3]&gin[2]) ||(pin[3]&pin[2]&gin[1]) || (pin[3]&pin[2]&pin[1]&gin[0]) ;
+	assign #(`gdelay*2) gout =t6;
+	assign #(`gdelay*1) pout= t5;
+	
+
+endmodule
+
+
+module adder4bit(x,y,cin,s,cout,gout,pout);
+	input[3:0] x,y;
+	input cin;
+	output[3:0] s;
+	output cout,pout,gout;
+       wire[3:1] c;
+	wire[3:0] g,p;
+
+	bcell b0(x[0],y[0],cin,g[0],p[0],s[0]);
+       bcell b1(x[1],y[1],c[1],g[1],p[1],s[1]);
+       bcell b2(x[2],y[2],c[2],g[2],p[2],s[2]);
+       bcell b3(x[3],y[3],c[3],g[3],p[3],s[3]);
+       
+       carrylookahead cla(g,p,cin,{cout,c},gout,pout);
+        
+endmodule
+
+
+module adder16bit(x,y,cin,s,cout,gout,pout);
+	input[15:0] x,y;
+	input cin;
+	output[15:0] s;
+	output cout,pout,gout;
+	
+	wire[3:1] carry;
+       wire[3:0] g,p;
+
+	adder4bit a0(x[3:0],y[3:0],cin,s[3:0],,g[0],p[0]);
+	adder4bit a1(x[7:4],y[7:4],carry[1],s[7:4],,g[1],p[1]);
+	adder4bit a2(x[11:8],y[11:8],carry[2],s[11:8],,g[2],p[2]);
+	adder4bit a3(x[15:12],y[15:12],carry[3],s[15:12],,g[3],p[3]);
+
+	carrylookahead cla(g,p,cin,{cout,carry},gout,pout);
+
+endmodule
+
+
+module adder32bit(x,y,cin,s,cout,gout,pout);
+	input[31:0] x,y;
+	input cin;
+	output[31:0] s;
+	output cout,pout,gout;
+	
+	wire[4:1] carry;
+        wire[1:0] g,p;
+	
+        adder16bit a0(x[15:0],y[15:0],cin,s[15:0],,g[0],p[0]);
+        adder16bit a1(x[31:16],y[31:16],carry[1],s[31:16],,g[1],p[1]);
+	
+        carrylookahead cla({2'b0,g},{2'b0,p},cin,carry,,);
+
+        assign gout=g[1];
+        assign pout=p[1];
+
+        assign cout=carry[2];
+
+endmodule 
+
+/*adder modules*/	
+
+
+/*swap modules*/
+
+module swapn(main,mbin,s,mao,mbo);
+input [31:0]main,mbin;
+output [31:0]mao,mbo;
+reg [31:0]mao,mbo,temp;
+input s;
+initial
+begin 
+if(s==1)
+begin
+    mao=mbin;
+    mbo=main;
+end
+else
+begin
+    mao=main;
+    mbo=mbin;
+end
+end
+endmodule
+/*end of swap module*/
+
+
+
+//mux module
+
+module mux(ea,eb,si,e);
+      input [31:0]ea,eb;
+      input si;
+      output [31:0]e;
+      reg [31:0]e;
+      initial
+      begin 
+      if(si==0)
+        e=ea;
+      else
+        e=eb;
+      end
+endmodule
+/*end of mux module*/
+
+/*leading zero detector*/
+/*
+module lead0de(va,n);
+      input [31:0]va;
+      output [4:0]n;
+      reg[4:0] n;
+      integer i;
+      initial
+      begin
+      assign n=0;
+      
+               end
+ $display("n=%d",n);
+      end  
+      end
+endmodule
+  */
+/*end of leading zero detector*/
+
+/*normalize and round*/
+
+module norro(va,n,ou);
+      input[31:0] n,va;
+      output[31:0] ou;
+     
+     assign ou=va>>(n-23);
+      //$monitor("%b",ou);
+     // #20;      
+     // $finish;
+endmodule
+
+/*end of normalization module*/
